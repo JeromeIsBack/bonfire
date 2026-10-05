@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#100c08">
+<title>Bonfire — rest, rate, rewatch</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#100c08; --bg2:#17100a; --surface:#1e160d; --surface2:#291d10;
+    --line:rgba(255,214,168,0.09); --line2:rgba(255,214,168,0.17);
+    --text:#f3ece2; --muted:#c1a888; --faint:#8a7358;
+    --accent:#f5a524; --accent2:#ff7a1a; --gold:#ffce5c; --heart:#ff5d73;
+    --hi:#7bc96f; --mid:#f0b429; --low:#e5484d;
+    --navh:64px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(900px 520px at 50% 116%, rgba(255,122,26,0.22), transparent 62%),
+      radial-gradient(680px 460px at 80% 106%, rgba(245,165,36,0.15), transparent 58%),
+      radial-gradient(620px 420px at 12% -6%, rgba(226,86,43,0.09), transparent 55%),
+      var(--bg);
+    color:var(--text); font-family:"Inter",system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    padding-bottom:calc(var(--navh) + env(safe-area-inset-bottom));
+  }
+  .app{max-width:760px; margin:0 auto; padding:0 16px;}
+
+  /* ---------- APP BAR ---------- */
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:18px 2px 8px;}
+  .brand{display:flex; align-items:center; gap:11px;}
+  .logo{width:38px; height:38px; display:grid; place-items:center; flex:none; filter:drop-shadow(0 0 9px rgba(255,122,26,0.55));}
+  .brand h1{font-family:"Oswald",sans-serif; font-weight:600; font-size:20px; letter-spacing:0.02em; text-transform:uppercase; line-height:1;}
+  .brand .sub{font-family:"Space Mono",monospace; font-size:9.5px; letter-spacing:0.22em; text-transform:uppercase; color:var(--faint); margin-top:3px;}
+  #installBtn{display:none; background:var(--accent); color:#fff; border:none; border-radius:9px; padding:9px 13px; font-family:"Space Mono",monospace; font-size:11px; cursor:pointer;}
+
+  /* ---------- VIEW HEADERS ---------- */
+  .vhead{padding:8px 2px 14px;}
+  .vhead .eyebrow{font-family:"Space Mono",monospace; font-size:10.5px; letter-spacing:0.24em; text-transform:uppercase; color:var(--accent);}
+  .vhead h2{font-family:"Oswald",sans-serif; font-weight:600; font-size:30px; text-transform:uppercase; letter-spacing:0.01em; line-height:1; margin-top:5px;}
+  .vhead p{color:var(--muted); font-size:13.5px; margin-top:7px; max-width:52ch;}
+
+  /* ---------- SEARCH BOX ---------- */
+  .searchbox{position:relative; margin:4px 0 16px;}
+  .searchbox input{
+    width:100%; background:var(--surface); border:1px solid var(--line); color:var(--text);
+    border-radius:12px; padding:13px 14px 13px 40px; font-family:"Inter",sans-serif; font-size:15px; outline:none;
+  }
+  .searchbox input:focus{border-color:var(--accent); box-shadow:0 0 0 3px rgba(107,92,255,0.18);}
+  .searchbox svg{position:absolute; left:13px; top:50%; transform:translateY(-50%); opacity:.5;}
+
+  /* ---------- FRANCHISE GRID ---------- */
+  .fgrid{display:grid; grid-template-columns:repeat(2,1fr); gap:11px; margin-bottom:8px;}
+  .fcard{
+    background:linear-gradient(180deg,var(--surface),var(--bg2)); border:1px solid var(--line);
+    border-radius:15px; padding:15px; cursor:pointer; transition:transform .16s, border-color .16s; text-align:left; min-height:112px;
+    display:flex; flex-direction:column; justify-content:space-between;
+  }
+  .fcard:hover,.fcard:focus-visible{transform:translateY(-2px); border-color:var(--line2); outline:none;}
+  .fcard .ftag{font-family:"Space Mono",monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent2);}
+  .fcard .fname{font-family:"Oswald",sans-serif; font-weight:500; font-size:18px; line-height:1.08; margin-top:8px;}
+  .fcard .fmeta{font-family:"Space Mono",monospace; font-size:11px; color:var(--faint); margin-top:10px; display:flex; gap:10px; align-items:center;}
+  .fcard .prog{height:4px; border-radius:99px; background:var(--surface2); overflow:hidden; margin-top:9px;}
+  .fcard .prog span{display:block; height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); width:0%;}
+
+  /* ---------- ORDER TOGGLE ---------- */
+  .backrow{display:flex; align-items:center; gap:10px; padding:2px 2px 10px;}
+  .backbtn{background:var(--surface); border:1px solid var(--line); color:var(--muted); border-radius:9px; width:34px; height:34px; display:grid; place-items:center; cursor:pointer; flex:none;}
+  .backbtn:hover{color:var(--text); border-color:var(--line2);}
+  .seg{display:flex; background:var(--surface); border:1px solid var(--line); border-radius:11px; padding:3px; gap:2px; margin:0 0 14px;}
+  .seg button{flex:1; background:none; border:none; color:var(--muted); font-family:"Space Mono",monospace; font-size:11.5px; padding:8px 6px; border-radius:8px; cursor:pointer; transition:.15s;}
+  .seg button.on{background:var(--accent); color:#fff;}
+  .ordernote{font-size:12px; color:var(--faint); font-style:italic; margin:-6px 2px 14px;}
+
+  /* ---------- TITLE CARD ---------- */
+  .tlist{display:flex; flex-direction:column; gap:10px;}
+  .tcard{
+    background:linear-gradient(180deg,var(--surface),var(--bg2)); border:1px solid var(--line);
+    border-radius:14px; padding:13px 14px; display:flex; gap:12px; align-items:flex-start;
+    transition:border-color .16s;
+  }
+  .tcard.seen{border-color:rgba(46,194,126,0.22);}
+  .tcard .idx{font-family:"Space Mono",monospace; font-size:12px; color:var(--accent2); font-weight:700; padding-top:3px; min-width:22px;}
+  .tbody{flex:1; min-width:0;}
+  .trow1{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
+  .ttitle{font-family:"Oswald",sans-serif; font-weight:500; font-size:17px; line-height:1.12;}
+  .tyear{font-family:"Space Mono",monospace; font-size:11px; color:var(--faint);}
+  .tbadge{font-family:"Space Mono",monospace; font-size:8.5px; letter-spacing:0.08em; text-transform:uppercase; padding:2px 6px; border-radius:5px; border:1px solid var(--line2); color:var(--muted);}
+  .tscores{display:flex; gap:12px; margin-top:7px; font-family:"Space Mono",monospace; font-size:11.5px;}
+  .tscores .imdb b{color:var(--gold);}
+  .tscores .rt b{color:var(--rc,#8bc34a);}
+  .tscores .mine b{color:var(--accent2);}
+  .tscores .na{color:var(--faint);}
+
+  .controls-t{display:flex; align-items:center; gap:14px; margin-top:11px; flex-wrap:wrap;}
+  .stars{display:flex; gap:3px;}
+  .star{cursor:pointer; color:var(--faint); transition:.12s; line-height:1;}
+  .star.lit{color:var(--gold);}
+  .star:hover{transform:scale(1.15);}
+  .stepper{display:flex; align-items:center; gap:8px; font-family:"Space Mono",monospace; font-size:12px; color:var(--muted);}
+  .stepper button{width:26px; height:26px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--text); font-size:15px; cursor:pointer; display:grid; place-items:center; line-height:1;}
+  .stepper button:hover{border-color:var(--line2);}
+  .stepper .cnt{min-width:52px; text-align:center;}
+  .stepper .cnt b{color:var(--text);}
+  .heart{background:none; border:none; cursor:pointer; color:var(--faint); padding:2px; line-height:1; transition:.14s;}
+  .heart.on{color:var(--heart);}
+  .heart:hover{transform:scale(1.12);}
+  .movebtns{display:flex; flex-direction:column; gap:4px; margin-left:auto;}
+  .movebtns button, .move{width:28px; height:24px; border:1px solid var(--line); background:var(--surface); color:var(--muted); border-radius:7px; cursor:pointer; display:grid; place-items:center;}
+  .move:hover{color:var(--text); border-color:var(--line2);}
+  .move:disabled{opacity:.3; cursor:default;}
+
+  .seenchip{font-family:"Space Mono",monospace; font-size:10px; color:var(--hi); border:1px solid rgba(46,194,126,0.35); border-radius:6px; padding:2px 7px;}
+
+  /* ---------- EMPTY ---------- */
+  .empty{text-align:center; padding:56px 20px; color:var(--faint);}
+  .empty .big{font-family:"Oswald",sans-serif; font-size:22px; color:var(--muted); text-transform:uppercase; margin-bottom:8px;}
+  .empty p{font-size:13.5px; max-width:34ch; margin:0 auto;}
+
+  .statstrip{display:flex; gap:10px; margin:2px 0 16px;}
+  .sstat{flex:1; background:linear-gradient(180deg,var(--surface),var(--bg2)); border:1px solid var(--line); border-radius:12px; padding:12px;}
+  .sstat .k{font-family:"Space Mono",monospace; font-size:22px; font-weight:700;}
+  .sstat .l{font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--faint); margin-top:4px;}
+
+  /* ---------- DOOMSDAY ZONE ---------- */
+  .countdown{
+    position:relative; overflow:hidden; border-radius:16px; padding:20px 18px; margin:2px 0 20px;
+    background:linear-gradient(150deg,#2a0f0a,#1a0d18 70%); border:1px solid rgba(255,122,26,0.28);
+  }
+  .countdown::after{content:""; position:absolute; inset:0; background:radial-gradient(420px 200px at 88% 120%, rgba(255,122,26,0.35), transparent 60%); pointer-events:none;}
+  .countdown .cd-lab{font-family:"Space Mono",monospace; font-size:10.5px; letter-spacing:0.22em; text-transform:uppercase; color:var(--accent); position:relative;}
+  .countdown .cd-film{font-family:"Oswald",sans-serif; font-weight:600; font-size:26px; text-transform:uppercase; line-height:1; margin:6px 0 12px; position:relative;}
+  .cd-clock{display:flex; gap:10px; position:relative;}
+  .cd-unit{background:rgba(0,0,0,0.28); border:1px solid var(--line2); border-radius:11px; padding:9px 0; flex:1; text-align:center;}
+  .cd-unit .num{font-family:"Space Mono",monospace; font-size:24px; font-weight:700; color:var(--gold); line-height:1;}
+  .cd-unit .cap{font-size:8.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--faint); margin-top:5px;}
+
+  .zgroup{margin:22px 0 6px; display:flex; align-items:center; gap:10px;}
+  .zgroup .zt{font-family:"Oswald",sans-serif; font-weight:600; font-size:19px; text-transform:uppercase; letter-spacing:0.01em;}
+  .zgroup .ztag{font-family:"Space Mono",monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; padding:3px 8px; border-radius:6px;}
+  .ztag.must{color:#ffd9a8; background:rgba(255,122,26,0.16); border:1px solid rgba(255,122,26,0.4);}
+  .ztag.opt{color:var(--muted); background:rgba(255,255,255,0.04); border:1px solid var(--line2);}
+  .zgroup .zrule{flex:1; height:1px; background:linear-gradient(90deg,var(--line2),transparent);}
+  .zsub{font-size:12px; color:var(--muted); margin:0 2px 12px; font-style:italic;}
+  .zdc-banner{margin:30px 0 4px; padding:13px 15px; border-radius:13px; background:linear-gradient(150deg,#0a1428,#0d1a2e); border:1px solid rgba(90,150,255,0.28);}
+  .zdc-banner .t{font-family:"Oswald",sans-serif; font-weight:600; font-size:18px; text-transform:uppercase; color:#bcd4ff;}
+  .zdc-banner .s{font-size:12px; color:#8fa6cf; margin-top:4px;}
+
+  /* ---------- BOTTOM NAV ---------- */
+  nav.tabbar{
+    position:fixed; left:0; right:0; bottom:0; z-index:50; height:calc(var(--navh) + env(safe-area-inset-bottom));
+    padding-bottom:env(safe-area-inset-bottom);
+    background:rgba(12,15,30,0.86); backdrop-filter:blur(14px); border-top:1px solid var(--line);
+    display:flex; justify-content:center; gap:6px;
+  }
+  nav.tabbar .tab{
+    flex:1; max-width:150px; background:none; border:none; color:var(--faint); cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    font-family:"Space Mono",monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; transition:.15s;
+  }
+  nav.tabbar .tab.on{color:var(--text);}
+  nav.tabbar .tab.on svg{stroke:var(--accent2);}
+  nav.tabbar .tab svg{stroke:var(--faint); transition:.15s;}
+
+  .hidden{display:none!important;}
+  .fade{animation:fu .35s ease both;}
+  @keyframes fu{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important;}}
+  @media (max-width:420px){ .fgrid{grid-template-columns:1fr;} .vhead h2{font-size:26px;} }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="bar">
+    <div class="brand">
+      <div class="logo">
+        <svg width="30" height="34" viewBox="0 0 24 28" fill="none" aria-hidden="true">
+          <defs><linearGradient id="fl" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffe08a"/><stop offset=".5" stop-color="#ff7a1a"/><stop offset="1" stop-color="#e2562b"/>
+          </linearGradient></defs>
+          <path d="M12 1c1.2 5 6 6 6 12a6 6 0 0 1-12 0c0-2.2.7-3.2 1.6-4.2C7 8.5 8.2 10 9.2 10 8.6 7 10.6 4 12 1z" fill="url(#fl)"/>
+          <path d="M12 12.5c.6 2.6 3 3.1 3 6a3 3 0 0 1-6 0c0-1.7 1.7-2.5 3-6z" fill="#fff4d8"/>
+        </svg>
+      </div>
+      <div><h1>Bonfire</h1><div class="sub">rest · rate · rewatch</div></div>
+    </div>
+    <button id="installBtn">Install app</button>
+  </div>
+  <main id="view"></main>
+</div>
+
+<nav class="tabbar">
+  <button class="tab on" data-tab="browse">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5M16 4v5"/></svg>
+    Browse
+  </button>
+  <button class="tab" data-tab="search">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+    Search
+  </button>
+  <button class="tab" data-tab="favs">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 20s-7-4.5-9.5-9C1 8 2.5 5 6 5c2 0 3.2 1.2 4 2.3C10.8 6.2 12 5 14 5c3.5 0 5 3 3.5 6-2.5 4.5-9.5 9-9.5 9z"/></svg>
+    Favourites
+  </button>
+  <button class="tab" data-tab="doom">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 2l8 3v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5l8-3z"/><path d="M9 11l2 2 4-4"/></svg>
+    Doomsday
+  </button>
+</nav>
+
+<script>
+/* ================= DATA =================
+   Bundled, curated. IMDb (audience /10) & RT (critics %) are approximate
+   snapshots as of mid-2026 — your own ratings are the point. */
+const FR = [
+ {id:"mcu", name:"Marvel Cinematic Universe", tag:"Superhero", storyLabel:"Chronological",
+  items:[
+   {t:"Iron Man",y:2008,imdb:7.9,rt:94,so:3,type:"Film"},
+   {t:"The Incredible Hulk",y:2008,imdb:6.6,rt:67,so:5,type:"Film"},
+   {t:"Iron Man 2",y:2010,imdb:6.9,rt:71,so:4,type:"Film"},
+   {t:"Thor",y:2011,imdb:7.0,rt:77,so:6,type:"Film"},
+   {t:"Captain America: The First Avenger",y:2011,imdb:6.9,rt:80,so:1,type:"Film"},
+   {t:"The Avengers",y:2012,imdb:8.0,rt:91,so:7,type:"Film"},
+   {t:"Iron Man 3",y:2013,imdb:7.1,rt:79,so:8,type:"Film"},
+   {t:"Thor: The Dark World",y:2013,imdb:6.8,rt:66,so:9,type:"Film"},
+   {t:"Captain America: The Winter Soldier",y:2014,imdb:7.8,rt:90,so:10,type:"Film"},
+   {t:"Guardians of the Galaxy",y:2014,imdb:8.0,rt:92,so:11,type:"Film"},
+   {t:"Avengers: Age of Ultron",y:2015,imdb:7.3,rt:76,so:13,type:"Film"},
+   {t:"Ant-Man",y:2015,imdb:7.3,rt:83,so:14,type:"Film"},
+   {t:"Captain America: Civil War",y:2016,imdb:7.8,rt:90,so:15,type:"Film"},
+   {t:"Doctor Strange",y:2016,imdb:7.5,rt:89,so:19,type:"Film"},
+   {t:"Guardians of the Galaxy Vol. 2",y:2017,imdb:7.6,rt:85,so:12,type:"Film"},
+   {t:"Spider-Man: Homecoming",y:2017,imdb:7.4,rt:92,so:18,type:"Film"},
+   {t:"Thor: Ragnarok",y:2017,imdb:7.9,rt:93,so:20,type:"Film"},
+   {t:"Black Panther",y:2018,imdb:7.3,rt:96,so:17,type:"Film"},
+   {t:"Avengers: Infinity War",y:2018,imdb:8.4,rt:85,so:22,type:"Film"},
+   {t:"Ant-Man and the Wasp",y:2018,imdb:7.0,rt:87,so:21,type:"Film"},
+   {t:"Captain Marvel",y:2019,imdb:6.8,rt:79,so:2,type:"Film"},
+   {t:"Avengers: Endgame",y:2019,imdb:8.4,rt:94,so:23,type:"Film"},
+   {t:"Spider-Man: Far From Home",y:2019,imdb:7.4,rt:90,so:31,type:"Film"},
+   {t:"WandaVision",y:2021,imdb:7.9,rt:91,so:25,type:"Series"},
+   {t:"The Falcon and the Winter Soldier",y:2021,imdb:7.2,rt:84,so:26,type:"Series"},
+   {t:"Loki (S1–2)",y:2021,imdb:8.2,rt:92,so:24,type:"Series"},
+   {t:"Black Widow",y:2021,imdb:6.7,rt:79,so:16,type:"Film"},
+   {t:"What If…? (S1)",y:2021,imdb:7.4,rt:93,so:27,type:"Series"},
+   {t:"Shang-Chi and the Legend of the Ten Rings",y:2021,imdb:7.4,rt:91,so:28,type:"Film"},
+   {t:"Eternals",y:2021,imdb:6.3,rt:47,so:29,type:"Film"},
+   {t:"Hawkeye",y:2021,imdb:7.5,rt:92,so:30,type:"Series"},
+   {t:"Spider-Man: No Way Home",y:2021,imdb:8.2,rt:93,so:32,type:"Film"},
+   {t:"Moon Knight",y:2022,imdb:7.3,rt:86,so:33,type:"Series"},
+   {t:"Doctor Strange in the Multiverse of Madness",y:2022,imdb:6.9,rt:73,so:35,type:"Film"},
+   {t:"Ms. Marvel",y:2022,imdb:6.2,rt:98,so:34,type:"Series"},
+   {t:"Thor: Love and Thunder",y:2022,imdb:6.2,rt:63,so:36,type:"Film"},
+   {t:"She-Hulk: Attorney at Law",y:2022,imdb:5.2,rt:79,so:37,type:"Series"},
+   {t:"Werewolf by Night",y:2022,imdb:7.1,rt:90,so:38,type:"Special"},
+   {t:"Black Panther: Wakanda Forever",y:2022,imdb:6.7,rt:84,so:39,type:"Film"},
+   {t:"The Guardians of the Galaxy Holiday Special",y:2022,imdb:6.8,rt:93,so:40,type:"Special"},
+   {t:"Ant-Man and the Wasp: Quantumania",y:2023,imdb:6.1,rt:46,so:41,type:"Film"},
+   {t:"Guardians of the Galaxy Vol. 3",y:2023,imdb:7.9,rt:82,so:42,type:"Film"},
+   {t:"Secret Invasion",y:2023,imdb:6.0,rt:53,so:43,type:"Series"},
+   {t:"The Marvels",y:2023,imdb:5.6,rt:62,so:45,type:"Film"},
+   {t:"Echo",y:2024,imdb:5.8,rt:70,so:44,type:"Series"},
+   {t:"Deadpool & Wolverine",y:2024,imdb:7.6,rt:78,so:48,type:"Film"},
+   {t:"Agatha All Along",y:2024,imdb:7.0,rt:84,so:46,type:"Series"},
+   {t:"Captain America: Brave New World",y:2025,imdb:5.9,rt:48,so:49,type:"Film"},
+   {t:"Daredevil: Born Again",y:2025,imdb:8.0,rt:87,so:51,type:"Series"},
+   {t:"Thunderbolts*",y:2025,imdb:7.4,rt:88,so:50,type:"Film"},
+   {t:"Ironheart",y:2025,imdb:5.6,rt:72,so:47,type:"Series"},
+   {t:"The Fantastic Four: First Steps",y:2025,imdb:7.1,rt:87,so:52,type:"Film"},
+   {t:"Spider-Man: Brand New Day",y:2026,imdb:8.2,rt:91,so:53,type:"Film"}
+  ]},
+ {id:"sw", name:"Star Wars", tag:"Space opera", storyLabel:"Episode order",
+  items:[
+   {t:"The Phantom Menace",y:1999,imdb:6.5,rt:52,so:1},
+   {t:"Attack of the Clones",y:2002,imdb:6.6,rt:65,so:2},
+   {t:"Revenge of the Sith",y:2005,imdb:7.6,rt:80,so:3},
+   {t:"Solo: A Star Wars Story",y:2018,imdb:6.9,rt:69,so:4},
+   {t:"Rogue One: A Star Wars Story",y:2016,imdb:7.8,rt:84,so:5},
+   {t:"A New Hope",y:1977,imdb:8.6,rt:93,so:6},
+   {t:"The Empire Strikes Back",y:1980,imdb:8.7,rt:94,so:7},
+   {t:"Return of the Jedi",y:1983,imdb:8.3,rt:83,so:8},
+   {t:"The Force Awakens",y:2015,imdb:7.8,rt:93,so:9},
+   {t:"The Last Jedi",y:2017,imdb:6.9,rt:91,so:10},
+   {t:"The Rise of Skywalker",y:2019,imdb:6.4,rt:51,so:11}
+  ]},
+ {id:"me", name:"Lord of the Rings & The Hobbit", tag:"Fantasy epic", storyLabel:"Middle-earth order",
+  items:[
+   {t:"The Hobbit: An Unexpected Journey",y:2012,imdb:7.8,rt:64,so:1},
+   {t:"The Hobbit: The Desolation of Smaug",y:2013,imdb:7.8,rt:74,so:2},
+   {t:"The Hobbit: The Battle of the Five Armies",y:2014,imdb:7.4,rt:59,so:3},
+   {t:"The Fellowship of the Ring",y:2001,imdb:8.9,rt:91,so:4},
+   {t:"The Two Towers",y:2002,imdb:8.8,rt:95,so:5},
+   {t:"The Return of the King",y:2003,imdb:9.0,rt:93,so:6}
+  ]},
+ {id:"ww", name:"Harry Potter & Fantastic Beasts", tag:"Wizarding World", storyLabel:"Story order",
+  items:[
+   {t:"Fantastic Beasts and Where to Find Them",y:2016,imdb:7.2,rt:74,so:1},
+   {t:"Fantastic Beasts: The Crimes of Grindelwald",y:2018,imdb:6.5,rt:36,so:2},
+   {t:"Fantastic Beasts: The Secrets of Dumbledore",y:2022,imdb:6.2,rt:46,so:3},
+   {t:"Harry Potter and the Philosopher's Stone",y:2001,imdb:7.7,rt:81,so:4},
+   {t:"Harry Potter and the Chamber of Secrets",y:2002,imdb:7.4,rt:82,so:5},
+   {t:"Harry Potter and the Prisoner of Azkaban",y:2004,imdb:7.9,rt:91,so:6},
+   {t:"Harry Potter and the Goblet of Fire",y:2005,imdb:7.7,rt:88,so:7},
+   {t:"Harry Potter and the Order of the Phoenix",y:2007,imdb:7.5,rt:77,so:8},
+   {t:"Harry Potter and the Half-Blood Prince",y:2009,imdb:7.6,rt:84,so:9},
+   {t:"Harry Potter and the Deathly Hallows: Part 1",y:2010,imdb:7.7,rt:78,so:10},
+   {t:"Harry Potter and the Deathly Hallows: Part 2",y:2011,imdb:8.1,rt:96,so:11}
+  ]},
+ {id:"ff", name:"The Fast & the Furious", tag:"Action", storyLabel:"Timeline order",
+  items:[
+   {t:"The Fast and the Furious",y:2001,imdb:6.8,rt:54,so:1},
+   {t:"2 Fast 2 Furious",y:2003,imdb:5.9,rt:36,so:2},
+   {t:"The Fast and the Furious: Tokyo Drift",y:2006,imdb:6.0,rt:37,so:6},
+   {t:"Fast & Furious",y:2009,imdb:6.5,rt:28,so:3},
+   {t:"Fast Five",y:2011,imdb:7.3,rt:78,so:4},
+   {t:"Fast & Furious 6",y:2013,imdb:7.0,rt:70,so:5},
+   {t:"Furious 7",y:2015,imdb:7.1,rt:81,so:7},
+   {t:"The Fate of the Furious",y:2017,imdb:6.5,rt:67,so:8},
+   {t:"Hobbs & Shaw",y:2019,imdb:6.5,rt:67,so:9},
+   {t:"F9",y:2021,imdb:5.2,rt:59,so:10},
+   {t:"Fast X",y:2023,imdb:5.8,rt:56,so:11}
+  ]},
+ {id:"hg", name:"The Hunger Games", tag:"Dystopian", storyLabel:"Story order",
+  items:[
+   {t:"The Ballad of Songbirds & Snakes",y:2023,imdb:6.7,rt:64,so:1},
+   {t:"The Hunger Games",y:2012,imdb:7.2,rt:84,so:2},
+   {t:"Catching Fire",y:2013,imdb:7.5,rt:90,so:3},
+   {t:"Mockingjay – Part 1",y:2014,imdb:6.6,rt:65,so:4},
+   {t:"Mockingjay – Part 2",y:2015,imdb:6.5,rt:70,so:5}
+  ]},
+ {id:"mi", name:"Mission: Impossible", tag:"Spy action", storyLabel:null,
+  items:[
+   {t:"Mission: Impossible",y:1996,imdb:7.2,rt:66,so:1},
+   {t:"Mission: Impossible 2",y:2000,imdb:6.1,rt:57,so:2},
+   {t:"Mission: Impossible III",y:2006,imdb:6.9,rt:71,so:3},
+   {t:"Ghost Protocol",y:2011,imdb:7.4,rt:93,so:4},
+   {t:"Rogue Nation",y:2015,imdb:7.4,rt:94,so:5},
+   {t:"Fallout",y:2018,imdb:7.7,rt:97,so:6},
+   {t:"Dead Reckoning Part One",y:2023,imdb:7.7,rt:96,so:7}
+  ]},
+ {id:"jw", name:"John Wick", tag:"Action", storyLabel:null,
+  items:[
+   {t:"John Wick",y:2014,imdb:7.4,rt:86,so:1},
+   {t:"John Wick: Chapter 2",y:2017,imdb:7.4,rt:89,so:2},
+   {t:"John Wick: Chapter 3 – Parabellum",y:2019,imdb:7.4,rt:89,so:3},
+   {t:"John Wick: Chapter 4",y:2023,imdb:7.7,rt:94,so:4}
+  ]},
+ {id:"jp", name:"Jurassic Park / World", tag:"Sci-fi", storyLabel:null,
+  items:[
+   {t:"Jurassic Park",y:1993,imdb:8.2,rt:92,so:1},
+   {t:"The Lost World: Jurassic Park",y:1997,imdb:6.5,rt:53,so:2},
+   {t:"Jurassic Park III",y:2001,imdb:5.9,rt:50,so:3},
+   {t:"Jurassic World",y:2015,imdb:6.9,rt:71,so:4},
+   {t:"Jurassic World: Fallen Kingdom",y:2018,imdb:6.1,rt:47,so:5},
+   {t:"Jurassic World Dominion",y:2022,imdb:5.6,rt:29,so:6}
+  ]},
+ {id:"xmen", name:"X-Men (Fox)", tag:"Mutants · pre-MCU", storyLabel:"Chronological",
+  items:[
+   {t:"X-Men",y:2000,imdb:7.3,rt:81,so:6,type:"Film"},
+   {t:"X2: X-Men United",y:2003,imdb:7.4,rt:86,so:7,type:"Film"},
+   {t:"X-Men: The Last Stand",y:2006,imdb:6.7,rt:58,so:8,type:"Film"},
+   {t:"X-Men Origins: Wolverine",y:2009,imdb:6.6,rt:37,so:2,type:"Film"},
+   {t:"X-Men: First Class",y:2011,imdb:7.7,rt:86,so:1,type:"Film"},
+   {t:"The Wolverine",y:2013,imdb:6.7,rt:70,so:9,type:"Film"},
+   {t:"X-Men: Days of Future Past",y:2014,imdb:7.9,rt:91,so:3,type:"Film"},
+   {t:"Deadpool",y:2016,imdb:8.0,rt:85,so:10,type:"Film"},
+   {t:"X-Men: Apocalypse",y:2016,imdb:6.9,rt:47,so:4,type:"Film"},
+   {t:"Logan",y:2017,imdb:8.1,rt:94,so:13,type:"Film"},
+   {t:"Deadpool 2",y:2018,imdb:7.6,rt:84,so:11,type:"Film"},
+   {t:"Dark Phoenix",y:2019,imdb:5.7,rt:22,so:5,type:"Film"},
+   {t:"The New Mutants",y:2020,imdb:5.3,rt:34,so:12,type:"Film"}
+  ]},
+ {id:"dcu", name:"DC Universe (Gunn reboot)", tag:"DC · new canon", storyLabel:null,
+  items:[
+   {t:"Peacemaker (S1)",y:2022,imdb:8.3,rt:94,so:1,type:"Series"},
+   {t:"Creature Commandos",y:2024,imdb:7.4,rt:93,so:2,type:"Series"},
+   {t:"Superman",y:2025,imdb:7.6,rt:83,so:3,type:"Film"},
+   {t:"Peacemaker (S2)",y:2025,imdb:8.4,rt:95,so:4,type:"Series"},
+   {t:"Supergirl",y:2026,imdb:6.5,rt:53,so:5,type:"Film"},
+   {t:"Clayface",y:2026,imdb:null,rt:null,so:6,type:"Film"},
+   {t:"Lanterns",y:2026,imdb:null,rt:null,so:7,type:"Series"}
+  ]}
+];
+
+/* assign stable ids + release order index */
+FR.forEach(f=>{
+  f.items.forEach((it,i)=>{ it.id = f.id+"-"+i; it.ro = i+1; it.fr = f.id; it.frName = f.name; });
+});
+const ALL = FR.flatMap(f=>f.items);
+const byId = Object.fromEntries(ALL.map(it=>[it.id,it]));
+const byKey = Object.fromEntries(ALL.map(it=>[it.fr+"|"+it.t,it]));
+function pick(fr, titles){ return titles.map(t=>byKey[fr+"|"+t]).filter(Boolean); }
+
+/* ================= ROAD TO DOOMSDAY ================= */
+const DOOM_DATE = new Date("2026-12-18T00:00:00");
+const ZONE = {
+  marvelMust: pick("mcu",[
+    "Avengers: Infinity War","Avengers: Endgame","Loki (S1–2)",
+    "Doctor Strange in the Multiverse of Madness","Spider-Man: No Way Home",
+    "The Fantastic Four: First Steps","Thunderbolts*","Captain America: Brave New World",
+    "Spider-Man: Brand New Day"
+  ]),
+  marvelOpt: pick("mcu",[
+    "WandaVision","What If…? (S1)","Ant-Man and the Wasp: Quantumania",
+    "Deadpool & Wolverine","Eternals","Black Panther: Wakanda Forever"
+  ]),
+  xmenMust: pick("xmen",[
+    "X-Men","X2: X-Men United","X-Men: The Last Stand","X-Men: Days of Future Past"
+  ]),
+  xmenOpt: pick("xmen",[
+    "X-Men: First Class","Logan","Deadpool","Deadpool 2"
+  ]),
+  dcMust: pick("dcu",["Creature Commandos","Superman","Peacemaker (S1)","Peacemaker (S2)"]),
+  dcOpt: pick("dcu",["Supergirl","Clayface","Lanterns"])
+};
+
+/* ================= USER STATE (localStorage, degrades to memory) ================= */
+const UKEY="bonfire:user:v1", CKEY="bonfire:custom:v1";
+let USER = {};      // id -> {seen,rating,fav}
+let CUSTOM = {};    // frId -> [ids]
+function load(){
+  try{ const u=localStorage.getItem(UKEY); if(u) USER=JSON.parse(u); }catch(e){}
+  try{ const c=localStorage.getItem(CKEY); if(c) CUSTOM=JSON.parse(c); }catch(e){}
+}
+function saveUser(){ try{ localStorage.setItem(UKEY,JSON.stringify(USER)); }catch(e){} }
+function saveCustom(){ try{ localStorage.setItem(CKEY,JSON.stringify(CUSTOM)); }catch(e){} }
+function u(id){ return USER[id] || (USER[id]={seen:0,rating:0,fav:false}); }
+
+/* ================= HELPERS ================= */
+function rtColor(v){ if(v==null) return "#8bc34a"; if(v>=75) return "#2ec27e"; if(v>=60) return "#8bc34a"; if(v>=50) return "#f0b429"; return "#e5484d"; }
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&quot;');
+
+/* ================= RENDER: TITLE CARD ================= */
+function titleCard(it, idx, opts={}){
+  const s=u(it.id);
+  const stars=[1,2,3,4,5].map(n=>`<span class="star ${s.rating>=n?'lit':''}" data-rate="${it.id}" data-n="${n}" role="button" aria-label="${n} star">★</span>`).join("");
+  const rt = it.rt==null?`<span class="na">RT —</span>`:`<span class="rt" style="--rc:${rtColor(it.rt)}">RT <b>${it.rt}%</b></span>`;
+  const imdb = it.imdb==null?`<span class="na">IMDb —</span>`:`<span class="imdb">IMDb <b>${it.imdb.toFixed(1)}</b></span>`;
+  const mine = s.rating?`<span class="mine">You <b>${s.rating}/5</b></span>`:``;
+  const rw = s.seen>1?` · ${s.seen-1}× rewatch`:``;
+  const badge = it.type&&it.type!=="Film"?`<span class="tbadge">${it.type}</span>`:``;
+  const showFr = opts.showFranchise?`<span class="tbadge">${esc(it.frName.split(" ").slice(0,2).join(" "))}</span>`:``;
+  const moveCol = opts.reorder?`
+    <div class="movebtns">
+      <button class="move" data-move="up" data-id="${it.id}" ${idx===0?'disabled':''} aria-label="Move up">▲</button>
+      <button class="move" data-move="down" data-id="${it.id}" ${opts.last?'disabled':''} aria-label="Move down">▼</button>
+    </div>`:``;
+  return `
+  <div class="tcard ${s.seen>0?'seen':''} fade">
+    ${idx!=null?`<div class="idx">${String(idx+1).padStart(2,'0')}</div>`:``}
+    <div class="tbody">
+      <div class="trow1">
+        <span class="ttitle">${esc(it.t)}</span>
+        <span class="tyear">${it.y}</span>
+        ${badge}${showFr}
+        ${s.seen>0?`<span class="seenchip">seen ${s.seen}×</span>`:``}
+      </div>
+      <div class="tscores">${imdb} ${rt} ${mine}</div>
+      <div class="controls-t">
+        <div class="stars" title="Your rating">${stars}</div>
+        <div class="stepper">
+          <button data-seen="dec" data-id="${it.id}" aria-label="Watched one less">–</button>
+          <span class="cnt"><b>${s.seen}</b> watched${rw}</span>
+          <button data-seen="inc" data-id="${it.id}" aria-label="Watched one more">+</button>
+        </div>
+        <button class="heart ${s.fav?'on':''}" data-fav="${it.id}" aria-label="Favourite">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="${s.fav?'currentColor':'none'}" stroke="currentColor" stroke-width="1.7"><path d="M12 20s-7-4.5-9.5-9C1 8 2.5 5 6 5c2 0 3.2 1.2 4 2.3C10.8 6.2 12 5 14 5c3.5 0 5 3 3.5 6-2.5 4.5-9.5 9-9.5 9z"/></svg>
+        </button>
+      </div>
+    </div>
+    ${moveCol}
+  </div>`;
+}
+
+/* ================= VIEWS ================= */
+let state={ tab:"browse", fr:null, order:"release", q:"" };
+const view=document.getElementById("view");
+
+function renderBrowse(){
+  const cards=FR.map(f=>{
+    const total=f.items.length;
+    const seen=f.items.filter(it=>u(it.id).seen>0).length;
+    const pct=Math.round(seen/total*100);
+    return `<button class="fcard" data-fr="${f.id}">
+      <div><div class="ftag">${f.tag}</div><div class="fname">${esc(f.name)}</div></div>
+      <div>
+        <div class="prog"><span style="width:${pct}%"></span></div>
+        <div class="fmeta"><span>${total} titles</span><span>${seen}/${total} seen</span></div>
+      </div>
+    </button>`;
+  }).join("");
+  view.innerHTML=`
+    <div class="vhead"><div class="eyebrow">Your library</div><h2>Browse franchises</h2>
+    <p>Pick a saga, choose the order you want to watch it in, then rate and track as you go.</p></div>
+    <div class="fgrid">${cards}</div>`;
+}
+
+function renderFranchise(){
+  const f=FR.find(x=>x.id===state.fr);
+  let items;
+  if(state.order==="custom"){
+    const saved=CUSTOM[f.id];
+    const base = saved && saved.length===f.items.length ? saved.map(id=>byId[id]).filter(Boolean) : [...f.items];
+    items = base;
+  } else if(state.order==="story"){
+    items=[...f.items].sort((a,b)=>a.so-b.so);
+  } else {
+    items=[...f.items].sort((a,b)=>a.ro-b.ro);
+  }
+  const hasStory = !!f.storyLabel;
+  const seg=`<div class="seg">
+     <button data-order="release" class="${state.order==='release'?'on':''}">Release</button>
+     ${hasStory?`<button data-order="story" class="${state.order==='story'?'on':''}">${f.storyLabel}</button>`:``}
+     <button data-order="custom" class="${state.order==='custom'?'on':''}">Custom</button>
+   </div>`;
+  const note = state.order==="custom"
+     ? `Reorder with the arrows — your order is saved on this device.`
+     : (state.order==="story" && f.id==="ff") ? `The famous one: Tokyo Drift slots in near the end, not third.`
+     : (state.order==="story") ? `In-universe order — differs from how they released.`
+     : `The order they hit cinemas.`;
+  const last=items.length-1;
+  const list=items.map((it,i)=>titleCard(it,i,{reorder:state.order==="custom", last:i===last})).join("");
+  view.innerHTML=`
+    <div class="backrow">
+      <button class="backbtn" id="back" aria-label="Back">←</button>
+      <div><div class="eyebrow" style="font-family:'Space Mono';font-size:10px;letter-spacing:.2em;color:var(--faint)">${f.tag}</div>
+      <div style="font-family:'Oswald';font-size:22px;text-transform:uppercase;line-height:1;margin-top:2px">${esc(f.name)}</div></div>
+    </div>
+    ${seg}<div class="ordernote">${note}</div>
+    <div class="tlist">${list}</div>`;
+}
+
+function renderSearch(){
+  const q=state.q.trim().toLowerCase();
+  let results = q ? ALL.filter(it=>it.t.toLowerCase().includes(q)||it.frName.toLowerCase().includes(q)) : [];
+  results.sort((a,b)=>b.y-a.y);
+  const body = !q
+    ? `<div class="empty"><div class="big">Search everything</div><p>Find any title across all ${FR.length} franchises — then rate it, favourite it, or count a rewatch.</p></div>`
+    : results.length
+      ? `<div class="tlist">${results.slice(0,60).map(it=>titleCard(it,null,{showFranchise:true})).join("")}</div>`
+      : `<div class="empty"><div class="big">Nothing found</div><p>No bundled title matches “${esc(state.q)}”. More franchises can be added anytime.</p></div>`;
+  view.innerHTML=`
+    <div class="vhead"><div class="eyebrow">Find a title</div><h2>Search</h2></div>
+    <div class="searchbox">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9298c0" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+      <input id="searchInput" type="text" placeholder="e.g. Empire, Wick, Azkaban…" value="${esc(state.q)}" autocomplete="off">
+    </div>${body}`;
+  const inp=document.getElementById("searchInput");
+  inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length);
+}
+
+function renderFavs(){
+  const favs=ALL.filter(it=>u(it.id).fav);
+  const seenCount=ALL.filter(it=>u(it.id).seen>0).length;
+  const rewatch=ALL.reduce((n,it)=>n+Math.max(0,u(it.id).seen-1),0);
+  const rated=ALL.filter(it=>u(it.id).rating>0).length;
+  favs.sort((a,b)=>u(b.id).rating-u(a.id).rating || b.y-a.y);
+  const strip=`<div class="statstrip">
+     <div class="sstat"><div class="k">${seenCount}</div><div class="l">Titles seen</div></div>
+     <div class="sstat"><div class="k" style="color:var(--accent2)">${rewatch}</div><div class="l">Rewatches</div></div>
+     <div class="sstat"><div class="k" style="color:var(--gold)">${rated}</div><div class="l">You rated</div></div>
+   </div>`;
+  const body = favs.length
+    ? `<div class="tlist">${favs.map(it=>titleCard(it,null,{showFranchise:true})).join("")}</div>`
+    : `<div class="empty"><div class="big">No favourites yet</div><p>Tap the heart on any title and it lands here, with your score and rewatch count.</p></div>`;
+  view.innerHTML=`
+    <div class="vhead"><div class="eyebrow">Your shelf</div><h2>Favourites</h2></div>
+    ${strip}${body}`;
+}
+
+function zoneGroup(title, tag, sub, items){
+  const done=items.filter(it=>u(it.id).seen>0).length;
+  return `
+    <div class="zgroup"><span class="zt">${title}</span>
+      <span class="ztag ${tag==='MUST'?'must':'opt'}">${tag} · ${done}/${items.length}</span>
+      <span class="zrule"></span></div>
+    ${sub?`<div class="zsub">${sub}</div>`:``}
+    <div class="tlist">${items.map(it=>titleCard(it,null,{showFranchise:true})).join("")}</div>`;
+}
+
+function renderDoomsday(){
+  const now=new Date();
+  const ms=DOOM_DATE-now;
+  const past=ms<=0;
+  const days=Math.max(0,Math.floor(ms/864e5));
+  const hrs=Math.max(0,Math.floor((ms%864e5)/36e5));
+  const mins=Math.max(0,Math.floor((ms%36e5)/6e4));
+  const allDoom=[...ZONE.marvelMust,...ZONE.marvelOpt,...ZONE.xmenMust,...ZONE.xmenOpt];
+  const mustAll=[...ZONE.marvelMust,...ZONE.xmenMust];
+  const mustDone=mustAll.filter(it=>u(it.id).seen>0).length;
+  const clock = past
+    ? `<div class="cd-clock"><div class="cd-unit" style="flex:none;padding:9px 16px"><div class="num">It's out!</div><div class="cap">Go watch it</div></div></div>`
+    : `<div class="cd-clock">
+        <div class="cd-unit"><div class="num">${days}</div><div class="cap">Days</div></div>
+        <div class="cd-unit"><div class="num">${hrs}</div><div class="cap">Hours</div></div>
+        <div class="cd-unit"><div class="num">${mins}</div><div class="cap">Mins</div></div>
+      </div>`;
+  view.innerHTML=`
+    <div class="vhead"><div class="eyebrow">Prep zone</div><h2>Road to Doomsday</h2>
+    <p>Avengers: Doomsday collides three universes — the Avengers (616), the Fantastic Four (828) and Fox's X-Men — against Doctor Doom. Here's the catch-up, split into must-see and optional.</p></div>
+    <div class="countdown">
+      <div class="cd-lab">Releases 18 Dec 2026 · you've done ${mustDone}/${mustAll.length} must-watches</div>
+      <div class="cd-film">Avengers: Doomsday</div>
+      ${clock}
+    </div>
+    ${zoneGroup("MCU essentials","MUST","The multiverse mechanics, the incursions, and the teams walking into Doom's crossover.",ZONE.marvelMust)}
+    ${zoneGroup("MCU deep cuts","OPTIONAL","Helpful texture — variants, the TVA, and who's still standing.",ZONE.marvelOpt)}
+    ${zoneGroup("Fox X-Men","MUST","Marvel's own tip: the original Fox cast returns in Doomsday, so the first trilogy + Days of Future Past matter most.",ZONE.xmenMust)}
+    ${zoneGroup("More X-Men","OPTIONAL","Extra mutant context if you've got time.",ZONE.xmenOpt)}
+    <div class="zdc-banner"><div class="t">⚡ Meanwhile, over at DC…</div>
+      <div class="s">Not part of Doomsday — a separate universe entirely. But since you asked: James Gunn's rebooted DCU, in the order to catch up.</div></div>
+    ${zoneGroup("DCU core","MUST","The foundation of Gunn's new canon.",ZONE.dcMust)}
+    ${zoneGroup("DCU latest","OPTIONAL","Newest chapters — a couple still settling their scores.",ZONE.dcOpt)}`;
+}
+
+function render(){
+  if(state.tab==="browse"){ state.fr?renderFranchise():renderBrowse(); }
+  else if(state.tab==="search"){ renderSearch(); }
+  else if(state.tab==="doom"){ renderDoomsday(); }
+  else renderFavs();
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.tab===state.tab));
+}
+
+/* ================= EVENTS (delegated) ================= */
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
+  state.tab=t.dataset.tab; if(state.tab!=="browse") state.fr=null; render();
+}));
+
+view.addEventListener("input",e=>{
+  if(e.target.id==="searchInput"){ state.q=e.target.value; renderSearch(); }
+});
+
+view.addEventListener("click",e=>{
+  const t=e.target;
+  const fr=t.closest("[data-fr]");
+  if(fr){ state.fr=fr.dataset.fr; state.order="release"; render(); return; }
+  if(t.id==="back"){ state.fr=null; render(); return; }
+  const ord=t.closest("[data-order]");
+  if(ord){
+    state.order=ord.dataset.order;
+    if(state.order==="custom" && !CUSTOM[state.fr]){
+      const f=FR.find(x=>x.id===state.fr);
+      CUSTOM[state.fr]=[...f.items].sort((a,b)=>a.ro-b.ro).map(i=>i.id); saveCustom();
+    }
+    render(); return;
+  }
+  const star=t.closest("[data-rate]");
+  if(star){ const s=u(star.dataset.rate); const n=+star.dataset.n; s.rating = s.rating===n?0:n; saveUser(); render(); return; }
+  const seen=t.closest("[data-seen]");
+  if(seen){ const s=u(seen.dataset.id); s.seen=Math.max(0,s.seen+(seen.dataset.seen==="inc"?1:-1)); saveUser(); render(); return; }
+  const fav=t.closest("[data-fav]");
+  if(fav){ const s=u(fav.dataset.fav); s.fav=!s.fav; saveUser(); render(); return; }
+  const mv=t.closest("[data-move]");
+  if(mv){ moveCustom(mv.dataset.id, mv.dataset.move); return; }
+});
+
+function moveCustom(id,dir){
+  const arr=CUSTOM[state.fr]; const i=arr.indexOf(id);
+  const j=dir==="up"?i-1:i+1;
+  if(j<0||j>=arr.length) return;
+  [arr[i],arr[j]]=[arr[j],arr[i]]; saveCustom(); render();
+}
+
+/* ================= PWA ================= */
+let deferred;
+window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); deferred=e; document.getElementById("installBtn").style.display="block"; });
+document.getElementById("installBtn").addEventListener("click",async()=>{
+  if(!deferred) return; deferred.prompt(); await deferred.userChoice; deferred=null;
+  document.getElementById("installBtn").style.display="none";
+});
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+
+/* ================= INIT ================= */
+load(); render();
+</script>
+</body>
+</html>
