@@ -129,6 +129,30 @@
   .sstat .k{font-family:"Space Mono",monospace; font-size:22px; font-weight:700;}
   .sstat .l{font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--faint); margin-top:4px;}
 
+  /* ---------- DOOMSDAY ZONE ---------- */
+  .countdown{
+    position:relative; overflow:hidden; border-radius:16px; padding:20px 18px; margin:2px 0 20px;
+    background:linear-gradient(150deg,#2a0f0a,#1a0d18 70%); border:1px solid rgba(255,122,26,0.28);
+  }
+  .countdown::after{content:""; position:absolute; inset:0; background:radial-gradient(420px 200px at 88% 120%, rgba(255,122,26,0.35), transparent 60%); pointer-events:none;}
+  .countdown .cd-lab{font-family:"Space Mono",monospace; font-size:10.5px; letter-spacing:0.22em; text-transform:uppercase; color:var(--accent); position:relative;}
+  .countdown .cd-film{font-family:"Oswald",sans-serif; font-weight:600; font-size:26px; text-transform:uppercase; line-height:1; margin:6px 0 12px; position:relative;}
+  .cd-clock{display:flex; gap:10px; position:relative;}
+  .cd-unit{background:rgba(0,0,0,0.28); border:1px solid var(--line2); border-radius:11px; padding:9px 0; flex:1; text-align:center;}
+  .cd-unit .num{font-family:"Space Mono",monospace; font-size:24px; font-weight:700; color:var(--gold); line-height:1;}
+  .cd-unit .cap{font-size:8.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--faint); margin-top:5px;}
+
+  .zgroup{margin:22px 0 6px; display:flex; align-items:center; gap:10px;}
+  .zgroup .zt{font-family:"Oswald",sans-serif; font-weight:600; font-size:19px; text-transform:uppercase; letter-spacing:0.01em;}
+  .zgroup .ztag{font-family:"Space Mono",monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; padding:3px 8px; border-radius:6px;}
+  .ztag.must{color:#ffd9a8; background:rgba(255,122,26,0.16); border:1px solid rgba(255,122,26,0.4);}
+  .ztag.opt{color:var(--muted); background:rgba(255,255,255,0.04); border:1px solid var(--line2);}
+  .zgroup .zrule{flex:1; height:1px; background:linear-gradient(90deg,var(--line2),transparent);}
+  .zsub{font-size:12px; color:var(--muted); margin:0 2px 12px; font-style:italic;}
+  .zdc-banner{margin:30px 0 4px; padding:13px 15px; border-radius:13px; background:linear-gradient(150deg,#0a1428,#0d1a2e); border:1px solid rgba(90,150,255,0.28);}
+  .zdc-banner .t{font-family:"Oswald",sans-serif; font-weight:600; font-size:18px; text-transform:uppercase; color:#bcd4ff;}
+  .zdc-banner .s{font-size:12px; color:#8fa6cf; margin-top:4px;}
+
   /* ---------- BOTTOM NAV ---------- */
   nav.tabbar{
     position:fixed; left:0; right:0; bottom:0; z-index:50; height:calc(var(--navh) + env(safe-area-inset-bottom));
@@ -184,6 +208,10 @@
   <button class="tab" data-tab="favs">
     <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 20s-7-4.5-9.5-9C1 8 2.5 5 6 5c2 0 3.2 1.2 4 2.3C10.8 6.2 12 5 14 5c3.5 0 5 3 3.5 6-2.5 4.5-9.5 9-9.5 9z"/></svg>
     Favourites
+  </button>
+  <button class="tab" data-tab="doom">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 2l8 3v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5l8-3z"/><path d="M9 11l2 2 4-4"/></svg>
+    Doomsday
   </button>
 </nav>
 
@@ -245,7 +273,8 @@ const FR = [
    {t:"Daredevil: Born Again",y:2025,imdb:8.0,rt:87,so:51,type:"Series"},
    {t:"Thunderbolts*",y:2025,imdb:7.4,rt:88,so:50,type:"Film"},
    {t:"Ironheart",y:2025,imdb:5.6,rt:72,so:47,type:"Series"},
-   {t:"The Fantastic Four: First Steps",y:2025,imdb:7.1,rt:87,so:52,type:"Film"}
+   {t:"The Fantastic Four: First Steps",y:2025,imdb:7.1,rt:87,so:52,type:"Film"},
+   {t:"Spider-Man: Brand New Day",y:2026,imdb:8.2,rt:91,so:53,type:"Film"}
   ]},
  {id:"sw", name:"Star Wars", tag:"Space opera", storyLabel:"Episode order",
   items:[
@@ -331,6 +360,32 @@ const FR = [
    {t:"Jurassic World",y:2015,imdb:6.9,rt:71,so:4},
    {t:"Jurassic World: Fallen Kingdom",y:2018,imdb:6.1,rt:47,so:5},
    {t:"Jurassic World Dominion",y:2022,imdb:5.6,rt:29,so:6}
+  ]},
+ {id:"xmen", name:"X-Men (Fox)", tag:"Mutants · pre-MCU", storyLabel:"Chronological",
+  items:[
+   {t:"X-Men",y:2000,imdb:7.3,rt:81,so:6,type:"Film"},
+   {t:"X2: X-Men United",y:2003,imdb:7.4,rt:86,so:7,type:"Film"},
+   {t:"X-Men: The Last Stand",y:2006,imdb:6.7,rt:58,so:8,type:"Film"},
+   {t:"X-Men Origins: Wolverine",y:2009,imdb:6.6,rt:37,so:2,type:"Film"},
+   {t:"X-Men: First Class",y:2011,imdb:7.7,rt:86,so:1,type:"Film"},
+   {t:"The Wolverine",y:2013,imdb:6.7,rt:70,so:9,type:"Film"},
+   {t:"X-Men: Days of Future Past",y:2014,imdb:7.9,rt:91,so:3,type:"Film"},
+   {t:"Deadpool",y:2016,imdb:8.0,rt:85,so:10,type:"Film"},
+   {t:"X-Men: Apocalypse",y:2016,imdb:6.9,rt:47,so:4,type:"Film"},
+   {t:"Logan",y:2017,imdb:8.1,rt:94,so:13,type:"Film"},
+   {t:"Deadpool 2",y:2018,imdb:7.6,rt:84,so:11,type:"Film"},
+   {t:"Dark Phoenix",y:2019,imdb:5.7,rt:22,so:5,type:"Film"},
+   {t:"The New Mutants",y:2020,imdb:5.3,rt:34,so:12,type:"Film"}
+  ]},
+ {id:"dcu", name:"DC Universe (Gunn reboot)", tag:"DC · new canon", storyLabel:null,
+  items:[
+   {t:"Peacemaker (S1)",y:2022,imdb:8.3,rt:94,so:1,type:"Series"},
+   {t:"Creature Commandos",y:2024,imdb:7.4,rt:93,so:2,type:"Series"},
+   {t:"Superman",y:2025,imdb:7.6,rt:83,so:3,type:"Film"},
+   {t:"Peacemaker (S2)",y:2025,imdb:8.4,rt:95,so:4,type:"Series"},
+   {t:"Supergirl",y:2026,imdb:6.5,rt:53,so:5,type:"Film"},
+   {t:"Clayface",y:2026,imdb:null,rt:null,so:6,type:"Film"},
+   {t:"Lanterns",y:2026,imdb:null,rt:null,so:7,type:"Series"}
   ]}
 ];
 
@@ -340,6 +395,31 @@ FR.forEach(f=>{
 });
 const ALL = FR.flatMap(f=>f.items);
 const byId = Object.fromEntries(ALL.map(it=>[it.id,it]));
+const byKey = Object.fromEntries(ALL.map(it=>[it.fr+"|"+it.t,it]));
+function pick(fr, titles){ return titles.map(t=>byKey[fr+"|"+t]).filter(Boolean); }
+
+/* ================= ROAD TO DOOMSDAY ================= */
+const DOOM_DATE = new Date("2026-12-18T00:00:00");
+const ZONE = {
+  marvelMust: pick("mcu",[
+    "Avengers: Infinity War","Avengers: Endgame","Loki (S1–2)",
+    "Doctor Strange in the Multiverse of Madness","Spider-Man: No Way Home",
+    "The Fantastic Four: First Steps","Thunderbolts*","Captain America: Brave New World",
+    "Spider-Man: Brand New Day"
+  ]),
+  marvelOpt: pick("mcu",[
+    "WandaVision","What If…? (S1)","Ant-Man and the Wasp: Quantumania",
+    "Deadpool & Wolverine","Eternals","Black Panther: Wakanda Forever"
+  ]),
+  xmenMust: pick("xmen",[
+    "X-Men","X2: X-Men United","X-Men: The Last Stand","X-Men: Days of Future Past"
+  ]),
+  xmenOpt: pick("xmen",[
+    "X-Men: First Class","Logan","Deadpool","Deadpool 2"
+  ]),
+  dcMust: pick("dcu",["Creature Commandos","Superman","Peacemaker (S1)","Peacemaker (S2)"]),
+  dcOpt: pick("dcu",["Supergirl","Clayface","Lanterns"])
+};
 
 /* ================= USER STATE (localStorage, degrades to memory) ================= */
 const UKEY="bonfire:user:v1", CKEY="bonfire:custom:v1";
@@ -495,9 +575,55 @@ function renderFavs(){
     ${strip}${body}`;
 }
 
+function zoneGroup(title, tag, sub, items){
+  const done=items.filter(it=>u(it.id).seen>0).length;
+  return `
+    <div class="zgroup"><span class="zt">${title}</span>
+      <span class="ztag ${tag==='MUST'?'must':'opt'}">${tag} · ${done}/${items.length}</span>
+      <span class="zrule"></span></div>
+    ${sub?`<div class="zsub">${sub}</div>`:``}
+    <div class="tlist">${items.map(it=>titleCard(it,null,{showFranchise:true})).join("")}</div>`;
+}
+
+function renderDoomsday(){
+  const now=new Date();
+  const ms=DOOM_DATE-now;
+  const past=ms<=0;
+  const days=Math.max(0,Math.floor(ms/864e5));
+  const hrs=Math.max(0,Math.floor((ms%864e5)/36e5));
+  const mins=Math.max(0,Math.floor((ms%36e5)/6e4));
+  const allDoom=[...ZONE.marvelMust,...ZONE.marvelOpt,...ZONE.xmenMust,...ZONE.xmenOpt];
+  const mustAll=[...ZONE.marvelMust,...ZONE.xmenMust];
+  const mustDone=mustAll.filter(it=>u(it.id).seen>0).length;
+  const clock = past
+    ? `<div class="cd-clock"><div class="cd-unit" style="flex:none;padding:9px 16px"><div class="num">It's out!</div><div class="cap">Go watch it</div></div></div>`
+    : `<div class="cd-clock">
+        <div class="cd-unit"><div class="num">${days}</div><div class="cap">Days</div></div>
+        <div class="cd-unit"><div class="num">${hrs}</div><div class="cap">Hours</div></div>
+        <div class="cd-unit"><div class="num">${mins}</div><div class="cap">Mins</div></div>
+      </div>`;
+  view.innerHTML=`
+    <div class="vhead"><div class="eyebrow">Prep zone</div><h2>Road to Doomsday</h2>
+    <p>Avengers: Doomsday collides three universes — the Avengers (616), the Fantastic Four (828) and Fox's X-Men — against Doctor Doom. Here's the catch-up, split into must-see and optional.</p></div>
+    <div class="countdown">
+      <div class="cd-lab">Releases 18 Dec 2026 · you've done ${mustDone}/${mustAll.length} must-watches</div>
+      <div class="cd-film">Avengers: Doomsday</div>
+      ${clock}
+    </div>
+    ${zoneGroup("MCU essentials","MUST","The multiverse mechanics, the incursions, and the teams walking into Doom's crossover.",ZONE.marvelMust)}
+    ${zoneGroup("MCU deep cuts","OPTIONAL","Helpful texture — variants, the TVA, and who's still standing.",ZONE.marvelOpt)}
+    ${zoneGroup("Fox X-Men","MUST","Marvel's own tip: the original Fox cast returns in Doomsday, so the first trilogy + Days of Future Past matter most.",ZONE.xmenMust)}
+    ${zoneGroup("More X-Men","OPTIONAL","Extra mutant context if you've got time.",ZONE.xmenOpt)}
+    <div class="zdc-banner"><div class="t">⚡ Meanwhile, over at DC…</div>
+      <div class="s">Not part of Doomsday — a separate universe entirely. But since you asked: James Gunn's rebooted DCU, in the order to catch up.</div></div>
+    ${zoneGroup("DCU core","MUST","The foundation of Gunn's new canon.",ZONE.dcMust)}
+    ${zoneGroup("DCU latest","OPTIONAL","Newest chapters — a couple still settling their scores.",ZONE.dcOpt)}`;
+}
+
 function render(){
   if(state.tab==="browse"){ state.fr?renderFranchise():renderBrowse(); }
   else if(state.tab==="search"){ renderSearch(); }
+  else if(state.tab==="doom"){ renderDoomsday(); }
   else renderFavs();
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.tab===state.tab));
 }
